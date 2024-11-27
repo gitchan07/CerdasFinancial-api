@@ -2,6 +2,7 @@ from flask import Blueprint, request
 from config.database import connection
 from sqlalchemy.orm import sessionmaker
 from models.users import Users
+import bcrypt
 import uuid
 from utils.validators import Validators
 from flask_jwt_extended import (
@@ -132,7 +133,49 @@ def me():
                 "full_name": user.full_name
             }
         }, 200
-    except KeyError:
+    except Exception as e:
         return {
-            
+            "msg": "error getting user",
+            "error": str(e)
+        }
+
+@auth_controller.route("/api/v1/refresh", methods=["POST"])
+@jwt_required(refresh=True)
+def refresh():
+    identity = get_jwt_identity()
+    access_token = create_access_token(identity=identity)
+    return {
+        "access_token": access_token
+    }, 200
+
+@auth_controller.route("/api/v1/change-password", methods=["POST"])
+@jwt_required()
+def change_password():
+    try:
+        session = Session()
+        user_id = get_jwt_identity()
+        user = session.query(Users).filter(user_id == user_id).first()
+        if not user:
+            return {
+                "message": "User not found"
+            }, 404
+
+        old_password = request.form["old_password"]
+        new_password = request.form["new_password"]
+        
+        if not user.check_password(old_password):
+            return {
+                "message": "Old password is incorrect"
+            }, 400
+
+        user.set_password(new_password)
+        session.commit()
+
+        return {
+            "message": "Password changed successfully"
+        }, 200
+    except Exception as e:
+        return {
+            "msg": "error changing password",
+            "error": str(e)
         }

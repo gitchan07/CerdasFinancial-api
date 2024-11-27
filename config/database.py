@@ -10,12 +10,13 @@ database = os.getenv("DB_NAME")
 
 ENV = os.getenv("ENV_API")
 
-DATABASE_URL = f"myqsl+mysqlconnector://{user}:{password}@{host}:{port}/{database}"
+DATABASE_URL = f"mysql+mysqlconnector://{user}:{password}@{host}:{port}/{database}"
 
 engine = create_engine(DATABASE_URL)
 
 try:
-    if ENV == '':
+    if ENV != '':
+        print("This API uses Development mode")
         engine = create_engine(
             DATABASE_URL,
             pool_size=100, 

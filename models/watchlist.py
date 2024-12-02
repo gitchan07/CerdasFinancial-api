@@ -1,6 +1,7 @@
 from models.base import Base
 from sqlalchemy import Column, String, ForeignKey
 from sqlalchemy.orm import relationship
+from db import db
 
 class Watchlist(Base):
     __tablename__ = 'watchlist'

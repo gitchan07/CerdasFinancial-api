@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 from config.database import connection
 from flask_jwt_extended import JWTManager
 from controllers.auth_controller import auth_controller
+from controllers.watchlist_controller import watchlist_controller
 from datetime import timedelta
 import os
 load_dotenv()
@@ -14,6 +15,7 @@ app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=int(os.getenv("TOKEN_EX
 app.config['JWT_REFRESH_TOKEN_EXPIRES'] = timedelta(hours=int(os.getenv("REFRESH_TOKEN_EXPIRES")))
 
 app.register_blueprint(auth_controller)
+app.register_blueprint(watchlist_controller)
 @app.route("/")
 def index():
     return "API working!"

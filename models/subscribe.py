@@ -5,7 +5,7 @@ from db import db
 
 class Subscribe(db.Model):
     __tablename__ = 'history_subscribe'
-    id = db.Column(db.tring, primary_key=True)
-    user_id = db.Column(db.String, ForeignKey('users.id'), nullable=False)
-    subscribe_date = db.Column(db.DateTime(timezone=True), server_default=func.now())
-    price =  db.Column(db.Integer)
+    id = Column(String(200), primary_key=True)
+    user_id = Column(String(200), ForeignKey('users.id'), nullable=False)
+    subscribe_date = Column(DateTime(timezone=True), server_default=func.now())
+    price =  Column(Integer)

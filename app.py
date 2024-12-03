@@ -9,6 +9,11 @@ from controllers.auth_controller import auth_controller
 from controllers.watchlist_controller import watchlist_controller
 from datetime import timedelta
 import os
+
+from models.category import Category
+from models.content_course import ContentCourses
+from models.subscribe import Subscribe
+from models.courses_category import CourseCategory
 load_dotenv()
 
 migrate = Migrate()

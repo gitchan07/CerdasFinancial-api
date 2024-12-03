@@ -10,6 +10,9 @@ mysql-connector-python = "*"
 bcrypt = "*"
 flask-jwt-extended = "*"
 python-dotenv = "*"
+flask-sqlalchemy = "*"
+flask-migrate = "*"
+marshmallow = "*"
 
 [dev-packages]
 

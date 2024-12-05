@@ -24,7 +24,7 @@ def get_watchlist():
         result = [
             {
                 "course_id": item.course.id,
-                "course_title": item.course.title,
+                "course_name": item.course.name,
                 "description": item.course.description
             } for item in watchlist_items
         ]
@@ -43,7 +43,7 @@ def add_to_watchlist():
     try:
         session = Session()
         user_id = get_jwt_identity()
-        course_id = request.json.get("course_id")
+        course_id = request.form["course_id"]
 
         course = session.query(Course).filter_by(id=course_id).first()
         if not course:

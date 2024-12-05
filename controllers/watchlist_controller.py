@@ -43,7 +43,7 @@ def add_to_watchlist():
     try:
         session = Session()
         user_id = get_jwt_identity()
-        course_id = request.form.get("course_id")
+        course_id = request.form["course_id"]
 
         course = session.query(Course).filter_by(id=course_id).first()
         if not course:

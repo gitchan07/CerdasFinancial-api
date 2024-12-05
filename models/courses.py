@@ -2,18 +2,21 @@ from models.base import Base
 from sqlalchemy import Column, String, Text, TIMESTAMP, ForeignKey
 from sqlalchemy.orm import relationship
 from datetime import datetime
+from db import db
 
-class Course(Base):
+class Course(db.Model):
     __tablename__ = 'courses'
     
-    id = Column(String, primary_key=True)  
-    name = Column(String, nullable=False)
+    id = Column(String(36), primary_key=True)  
+    name = Column(String(200), nullable=False)
     description = Column(Text, nullable=True)
     detail = Column(Text, nullable=True)
-    video_url = Column(String, nullable=True)
+    video_url = Column(String(200), nullable=True)
     created_at = Column(TIMESTAMP, default=datetime.utcnow)
-    created_by = Column(String, ForeignKey('users.id'), nullable=False) 
+    created_by = Column(String(200), ForeignKey('users.id'), nullable=True) 
     
-    watchlist = relationship("Watchlist", back_populates="course")
-    contents = relationship("ContentsCourse", back_populates="course") 
-    categories = relationship("CoursesCategory", back_populates="course")
+    watchlists = relationship("Watchlist", back_populates="course")
+    categories = relationship("CourseCategory", back_populates="course")
+    content_courses = relationship("ContentCourses", back_populates="course")
+
+

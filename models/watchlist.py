@@ -10,5 +10,7 @@ class Watchlist(db.Model):
     user_id = Column(String(200), ForeignKey('users.id'), nullable=False)
     course_id = Column(String(200), ForeignKey('courses.id'), nullable=False)
     
-    user = relationship("User", back_populates="watchlists")
-    course = relationship("Course", back_populates="watchlists")
+    user = relationship('Users', back_populates="watchlists")
+    course = relationship('Course', back_populates="watchlists")
+
+

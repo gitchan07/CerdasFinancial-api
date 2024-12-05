@@ -13,8 +13,10 @@ class Course(db.Model):
     detail = Column(Text, nullable=True)
     video_url = Column(String(200), nullable=True)
     created_at = Column(TIMESTAMP, default=datetime.utcnow)
-    created_by = Column(String(200), ForeignKey('users.id'), nullable=False) 
+    created_by = Column(String(200), ForeignKey('users.id'), nullable=True) 
     
-    watchlist = relationship("Watchlist", back_populates="course")
-    contents = relationship("ContentsCourse", back_populates="course") 
-    categories = relationship("CoursesCategory", back_populates="course")
+    watchlists = relationship("Watchlist", back_populates="course")
+    categories = relationship("CourseCategory", back_populates="course")
+    content_courses = relationship("ContentCourses", back_populates="course")
+
+

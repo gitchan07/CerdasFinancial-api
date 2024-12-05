@@ -5,10 +5,10 @@ from sqlalchemy.orm import sessionmaker
 from models.courses import Course
 from models.content_course import ContentCourses
 
-courses_controller = Blueprint("courses_controller", __name__)
+contents_controller = Blueprint("contents_controller", __name__)
 Session = sessionmaker(bind=connection)
 
-@courses_controller.route("/api/v1/courses/<string:course_id>", methods=["GET"])
+@contents_controller.route("/api/v1/courses/<string:course_id>", methods=["GET"])
 @jwt_required()
 def get_course_by_id(course_id):
     session = Session()

@@ -12,6 +12,7 @@ from controllers.auth_controller import auth_controller
 from controllers.watchlist_controller import watchlist_controller
 from controllers.subscribe_controller import subscribe_controller
 from controllers.courses_controller import courses_controller
+from controllers.content_course_controller import contents_controller
 
 from models.category import Category
 from models.content_course import ContentCourses
@@ -33,6 +34,7 @@ app.register_blueprint(auth_controller)
 app.register_blueprint(watchlist_controller)
 app.register_blueprint(subscribe_controller)
 app.register_blueprint(courses_controller)
+app.register_blueprint(contents_controller)
 @app.route("/")
 def index():
     return "API working!"

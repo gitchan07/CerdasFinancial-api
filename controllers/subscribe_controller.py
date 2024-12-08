@@ -36,7 +36,7 @@ def register():
         )
         session.add(new_subscribe)
 
-        user = session.query(Users).filter(Users.user_id == current_user_id).first()
+        user = session.query(Users).filter(Users.id == current_user_id).first()
         if not user:
             session.rollback()
             return {

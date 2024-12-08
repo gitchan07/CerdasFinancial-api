@@ -8,43 +8,24 @@ from models.content_course import ContentCourses
 contents_controller = Blueprint("contents_controller", __name__)
 Session = sessionmaker(bind=connection)
 
-@contents_controller.route("/api/v1/courses/<string:course_id>", methods=["GET"])
+@contents_controller.route("/api/v1/content_courses/<string:content_course_id>", methods=["GET"])
 @jwt_required()
-def get_course_by_id(course_id):
+def get_content_courses(content_course_id):
     session = Session()
     try:
-        course = session.query(Course).filter_by(id=course_id).first()
-        if not course:
-            return jsonify({"data": "Course Not Found"}), 404
+        content_list = session.query(ContentCourses).filter_by(id=content_course_id).first()
+        if content_list is None:
+            return jsonify({"msg": "Content not found"}), 404
 
-        content_list = session.query(ContentCourses).filter_by(course_id=course.id).all()
-
-        if not content_list:
-            return jsonify({
-                "course_id": course.id,
-                "course_name": course.name,
-                "course_description": course.description,
-                "content": [],
-                "message": "No content available for this course."
-            }), 200
-
-        content_data = [
-            {
-                "content_id": content.id,
-                "name": content.name,
-                "description": content.description,
-                "video_url": content.video_url
-            } for content in content_list
-        ]
-
-        response = {
-            "course_id": course.id,
-            "course_name": course.name,
-            "course_description": course.description,
-            "content": content_data
+        # Serialize the content object
+        content_dict = {
+            "id": content_list.id,
+            "name": content_list.name,
+            "description": content_list.description,
+            # Add other fields here as needed
         }
 
-        return jsonify({"data": response}), 200
+        return jsonify({"data": content_dict}), 200
 
     except Exception as e:
         return jsonify({"msg": "Internal Server Error", "error": str(e)}), 500

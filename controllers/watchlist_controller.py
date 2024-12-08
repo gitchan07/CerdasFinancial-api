@@ -23,6 +23,7 @@ def get_watchlist():
         
         result = [
             {
+                "watchlist_id": item.id,
                 "course_id": item.course.id,
                 "course_name": item.course.name,
                 "description": item.course.description

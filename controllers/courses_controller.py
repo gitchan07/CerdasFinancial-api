@@ -25,10 +25,16 @@ def get_all_courses():
         return {"message": "User not found"}, 404
     session = Session()
     try:
-        courses = session.query(Course).all()
+        page = request.args.get("page", 1, type=int)
+        limit = request.args.get("limit", 10, type=int)
+        offset = (page - 1) * limit
+
+        courses = session.query(Course).offset(offset).limit(limit).all()
+        total_courses = session.query(Course).count()
+
         if not courses:
             return {"message": "No courses found"}, 404
-        
+
         courses_json = [
             {
                 key: getattr(course, key)
@@ -49,13 +55,13 @@ def get_all_courses():
             contents = session.query(ContentCourses).filter_by(course_id=course["id"]).all()
             contents_json = [
                 {
-                key: getattr(content, key)
-                for key in [
-                    "id",
-                    "content_list",
-                    "name",
-                    "description",
-                    "video_url",
+                    key: getattr(content, key)
+                    for key in [
+                        "id",
+                        "content_list",
+                        "name",
+                        "description",
+                        "video_url",
                     ]
                 }
                 for content in contents
@@ -67,17 +73,17 @@ def get_all_courses():
                 {
                     "id": category.id,
                     "name": category.category.name
-                } 
+                }
                 for category in categories
             ]
             course["categories"] = categories_json
 
-        print(courses_json)
-        return {"data": courses_json}, 200
-        
-
-
-        
+        return {
+            "data": courses_json,
+            "total": total_courses,
+            "page": page,
+            "limit": limit
+        }, 200
 
     except Exception as e:
         return {"msg": "Internal Server Error", "error": str(e)}, 500

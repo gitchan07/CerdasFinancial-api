@@ -12,6 +12,7 @@ class Course(db.Model):
     description = Column(Text, nullable=True)
     detail = Column(Text, nullable=True)
     video_url = Column(String(200), nullable=True)
+    img_banner = Column(String(200), nullable=True)
     created_at = Column(TIMESTAMP, default=datetime.utcnow)
     created_by = Column(String(200), ForeignKey('users.id'), nullable=True) 
     

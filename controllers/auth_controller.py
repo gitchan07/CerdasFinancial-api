@@ -115,7 +115,7 @@ def login():
     finally:
         session.close()
 
-@auth_controller.route("/api/v1/me", methods=["POST"])
+@auth_controller.route("/api/v1/me", methods=["GET"])
 @jwt_required()
 def me():
     try:
@@ -148,7 +148,7 @@ def refresh():
         "access_token": access_token
     }, 200
 
-@auth_controller.route("/api/v1/change-password", methods=["POST"])
+@auth_controller.route("/api/v1/change", methods=["POST"])
 @jwt_required()
 def change_password():
     try:
@@ -166,7 +166,7 @@ def change_password():
         if not user.check_password(old_password):
             return {
                 "message": "Old password is incorrect"
-            }, 400
+            }, 4001
 
         user.set_password(new_password)
         session.commit()
@@ -179,3 +179,6 @@ def change_password():
             "msg": "error changing password",
             "error": str(e)
         }
+    
+
+

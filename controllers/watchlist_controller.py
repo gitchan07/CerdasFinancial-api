@@ -24,7 +24,7 @@ def get_watchlist():
         result = [
             {
                 "course_id": item.course.id,
-                "course_title": item.course.title,
+                "course_title": item.course.name,
                 "description": item.course.description
             } for item in watchlist_items
         ]

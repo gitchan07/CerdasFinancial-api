@@ -2,8 +2,10 @@
 from flask import Flask
 from flask_migrate import Migrate
 from config.database import connection
+from datetime import timedelta
 from db import db
 from dotenv import load_dotenv
+from minio import Minio
 from datetime import timedelta
 import os
 from flask_jwt_extended import JWTManager
@@ -13,6 +15,7 @@ from controllers.watchlist_controller import watchlist_controller
 from controllers.subscribe_controller import subscribe_controller
 from controllers.courses_controller import courses_controller
 from controllers.content_course_controller import contents_controller
+from controllers.category_controller import category_controller
 
 from models.category import Category
 from models.content_course import ContentCourses
@@ -35,6 +38,33 @@ app.register_blueprint(watchlist_controller)
 app.register_blueprint(subscribe_controller)
 app.register_blueprint(courses_controller)
 app.register_blueprint(contents_controller)
+app.register_blueprint(category_controller)
+
+
+minio_client = Minio(
+    os.getenv("MINIO_URL"),
+    access_key=os.getenv("MINIO_ACCESS_KEY"),
+    secret_key=os.getenv("MINIO_SECRET_KEY"),
+    secure=False
+)
+bucket_name = os.getenv("MINIO_BUCKET_NAME")
+@app.route('/minio', methods=['GET'])
+def minio_test():
+    try:
+        file_url = minio_client.presigned_get_object(
+            bucket_name,
+            "videos/what-is-stock.mp4",
+            expires=timedelta(seconds=3600)
+        )
+        return {
+            "file_url": file_url
+        }
+    except Exception as e:
+        return {
+            "msg": "Internal Server Error",
+            "error": str(e)
+        }, 500
+
 @app.route("/")
 def index():
     return "API working!"

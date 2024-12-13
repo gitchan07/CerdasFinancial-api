@@ -5,9 +5,20 @@ from models.courses import Course
 from models.content_course import ContentCourses
 from models.courses_category import CourseCategory
 from models.users import Users
-from datetime import datetime
-
+from datetime import datetime, timedelta
+from minio import Minio
+import os
 import uuid
+
+minio_client = Minio(
+    os.getenv("MINIO_URL"),
+    access_key=os.getenv("MINIO_ACCESS_KEY"),
+    secret_key=os.getenv("MINIO_SECRET_KEY"),
+    secure=False
+)
+bucket_name = os.getenv("MINIO_BUCKET_NAME")
+
+
 from flask_jwt_extended import (
     jwt_required,
     get_jwt_identity
@@ -28,16 +39,25 @@ def get_all_courses():
         page = request.args.get("page", 1, type=int)
         limit = request.args.get("limit", 10, type=int)
         offset = (page - 1) * limit
+        name = request.args.get("name")
 
-        courses = session.query(Course).offset(offset).limit(limit).all()
-        total_courses = session.query(Course).count()
+        if name:
+            courses = session.query(Course).filter(Course.name.like("%"+name+"%")).offset(offset).limit(limit).all()
+            total_courses = session.query(Course).filter(Course.name.like("%"+name+"%")).count()
+        else:
+            courses = session.query(Course).offset(offset).limit(limit).all()
+            total_courses = session.query(Course).count()
 
         if not courses:
             return {"message": "No courses found"}, 404
 
         courses_json = [
             {
-                key: getattr(course, key)
+                key: getattr(course, key) if key != "video_url" else minio_client.presigned_get_object(
+                    bucket_name,
+                    getattr(course, key),
+                    expires=timedelta(seconds=3600)
+                )
                 for key in [
                     "id",
                     "name",
@@ -51,11 +71,16 @@ def get_all_courses():
             for course in courses
         ]
 
+
         for course in courses_json:
             contents = session.query(ContentCourses).filter_by(course_id=course["id"]).all()
             contents_json = [
                 {
-                    key: getattr(content, key)
+                    key: getattr(content, key) if key != "video_url" else minio_client.presigned_get_object(
+                        bucket_name,
+                        getattr(content, key),
+                        expires=timedelta(seconds=3600)
+                    )
                     for key in [
                         "id",
                         "content_list",
@@ -103,7 +128,11 @@ def get_courses_by_id(id):
             return {"message": "No courses found"}, 404
         
         course_json = {
-            key: getattr(course, key)
+            key: getattr(course, key) if key != "video_url" else minio_client.presigned_get_object(
+                    bucket_name,
+                    getattr(course, key),
+                    expires=timedelta(seconds=3600)
+                )
             for key in [
                 "id",
                 "name",
@@ -118,7 +147,11 @@ def get_courses_by_id(id):
         contents = session.query(ContentCourses).filter_by(course_id=course.id).all()
         contents_json = [
             {
-                key: getattr(content, key)
+                key: getattr(content, key) if key != "video_url" else minio_client.presigned_get_object(
+                    bucket_name,
+                    getattr(content, key),
+                    expires=timedelta(seconds=3600)
+                )
                 for key in [
                     "id",
                     "content_list",

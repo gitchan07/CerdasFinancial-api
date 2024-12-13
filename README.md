@@ -51,5 +51,7 @@ Run the application:
 flask run
 ```
 
+Documentations in [here](https://documenter.getpostman.com/view/16698679/2sAYBbco8K)
+
 License
 This project is licensed under the MIT License. See the LICENSE file for details.

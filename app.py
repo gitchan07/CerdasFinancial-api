@@ -16,7 +16,7 @@ from controllers.subscribe_controller import subscribe_controller
 from controllers.courses_controller import courses_controller
 from controllers.content_course_controller import contents_controller
 from controllers.category_controller import category_controller
-
+from flask_cors import CORS
 from models.category import Category
 from models.content_course import ContentCourses
 from models.subscribe import Subscribe
@@ -32,6 +32,7 @@ app.config['JWT_REFRESH_TOKEN_EXPIRES'] = timedelta(hours=int(os.getenv("REFRESH
 app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URI")
 db.init_app(app)
 migrate.init_app(app, db)
+CORS(app)
 
 app.register_blueprint(auth_controller)
 app.register_blueprint(watchlist_controller)
@@ -41,29 +42,7 @@ app.register_blueprint(contents_controller)
 app.register_blueprint(category_controller)
 
 
-minio_client = Minio(
-    os.getenv("MINIO_URL"),
-    access_key=os.getenv("MINIO_ACCESS_KEY"),
-    secret_key=os.getenv("MINIO_SECRET_KEY"),
-    secure=False
-)
-bucket_name = os.getenv("MINIO_BUCKET_NAME")
-@app.route('/minio', methods=['GET'])
-def minio_test():
-    try:
-        file_url = minio_client.presigned_get_object(
-            bucket_name,
-            "videos/what-is-stock.mp4",
-            expires=timedelta(seconds=3600)
-        )
-        return {
-            "file_url": file_url
-        }
-    except Exception as e:
-        return {
-            "msg": "Internal Server Error",
-            "error": str(e)
-        }, 500
+
 
 @app.route("/")
 def index():

@@ -25,6 +25,7 @@ load_dotenv()
 
 migrate = Migrate()
 app = Flask(__name__)
+CORS(app)
 jwt = JWTManager(app)
 app.config["JWT_SECRET_KEY"] = os.getenv("SECRET")
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=int(os.getenv("TOKEN_EXPIRES")))
@@ -32,7 +33,6 @@ app.config['JWT_REFRESH_TOKEN_EXPIRES'] = timedelta(hours=int(os.getenv("REFRESH
 app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URI")
 db.init_app(app)
 migrate.init_app(app, db)
-CORS(app)
 
 app.register_blueprint(auth_controller)
 app.register_blueprint(watchlist_controller)

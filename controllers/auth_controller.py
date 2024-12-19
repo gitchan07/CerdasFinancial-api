@@ -14,11 +14,12 @@ from flask_jwt_extended import (
 
 
 auth_controller = Blueprint("auth_controller", __name__)
-Session = sessionmaker(connection)
+
 @auth_controller.route("/api/v1/register", methods=["POST"])
 def register():
+    Session = sessionmaker(connection)
+    session = Session()
     try: 
-        session = Session()
         email = request.form["email"]
         full_name = request.form["full_name"]
         password = request.form["password"]
@@ -27,6 +28,12 @@ def register():
         if not Validators.is_valid(email):
             return {
                 "message": "Invalid email"
+            }, 400
+        
+        user = session.query(Users).filter(Users.email==email).first()
+        if user:
+            return {
+                "message": "User already exists"
             }, 400
 
         if not email or not full_name or not password or not confirm_password:
@@ -44,6 +51,7 @@ def register():
             return {
                 "message": "Passwords do not match"
             }, 400
+        
         
 
         
@@ -72,12 +80,14 @@ def register():
 
 @auth_controller.route("/api/v1/login", methods=["POST"])
 def login():
+    Session = sessionmaker(connection)
+    session = Session()
     try:
         email = request.form["email"]
         password = request.form["password"]
 
-        session = Session()
-        user = session.query(Users).filter(email==email).first()
+        user = session.query(Users).filter(Users.email==email).first()
+        
 
         if not user:
             return {
@@ -88,7 +98,6 @@ def login():
                 "message": "Invalid password"
                 }, 401
         
-        print(user.id)
         
         access_token = create_access_token(identity=user.id, additional_claims={
             "email": user.email,
@@ -108,20 +117,20 @@ def login():
 
         
 
-    except KeyError:
-        return {
-            "message": "Invalid request"
-        }, 400
+    except Exception as e:
+        return {"message": "An internal error occurred",  "error": str(e)}, 500
     finally:
-        session.close()
+        if session:  # Close the session if it was created
+            session.close()
 
 @auth_controller.route("/api/v1/me", methods=["GET"])
 @jwt_required()
 def me():
+    Session = sessionmaker(connection)
+    session = Session()
     try:
-        session = Session()
         user_id = get_jwt_identity()
-        user = session.query(Users).filter(user_id==user_id).first()
+        user = session.query(Users).filter(Users.user_id==user_id).first()
         if not user:
             return {
                 "message": "User not found"
@@ -151,10 +160,11 @@ def refresh():
 @auth_controller.route("/api/v1/change", methods=["POST"])
 @jwt_required()
 def change_password():
+    Session = sessionmaker(connection)
+    session = Session()
     try:
-        session = Session()
         user_id = get_jwt_identity()
-        user = session.query(Users).filter(user_id == user_id).first()
+        user = session.query(Users).filter(Users.user_id == user_id).first()
         if not user:
             return {
                 "message": "User not found"

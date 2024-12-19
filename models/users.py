@@ -1,5 +1,5 @@
 from models.base import Base
-from sqlalchemy import Column, String, Integer, DateTime, ForeignKey
+from sqlalchemy import Column, String, Integer, DateTime
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
@@ -10,7 +10,7 @@ class Users(db.Model):
     __tablename__ = 'users'
     id = Column(String(36), primary_key=True)
     email = Column(String(100), nullable=False)
-    password = Column(String(100), nullable=False)
+    password = Column(String(250), nullable=False)
     full_name = Column(String(100), nullable=False)
     is_subscribe = Column(Integer, default=0)
     subscribe_time = Column(DateTime, default=None)

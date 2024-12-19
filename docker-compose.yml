@@ -4,15 +4,15 @@ services:
   app:
     image: firmanasgani/cerdas_financial_api:1.0.1
     environment:
-      - DB_HOST=172.17.17.100
-      - DB_PORT=33123
-      - DB_USER=revou
-      - DB_PASS=rev0unext
-      - SECRET=SecretFinancialCerdas
+      - DB_HOST=localhost
+      - DB_PORT=3306
+      - DB_USER=root
+      - DB_PASS=
+      - SECRET=
       - TOKEN_EXPIRES=1
       - DB_NAME=cerdasFinancial
       - REFRESH_TOKEN_EXPIRES=12
       - ENV_API=DEVELOPMENT
-      - DATABASE_URI=mysql+mysqlconnector://revou:rev0unext@172.17.17.100:33123/cerdasFinancial
+      - DATABASE_URI=mysql+mysqlconnector://root@localhost:3306/cerdasFinancial
     ports:
       - "5001:5000"  # Adjust if your app runs on a different port

@@ -13,7 +13,7 @@ Session = sessionmaker(bind=connection)
 def get_content_courses(content_course_id):
     session = Session()
     try:
-        content_list = session.query(ContentCourses).filter_by(id=content_course_id).first()
+        content_list = session.query(ContentCourses).filter_by(ContentCourses.id==content_course_id).first()
         if content_list is None:
             return jsonify({"msg": "Content not found"}), 404
 

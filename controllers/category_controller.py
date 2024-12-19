@@ -27,11 +27,11 @@ def get_categories():
 def get_category(id):
     try:
         session = Session()
-        category = session.query(Category).filter_by(id=id).first()
+        category = session.query(Category).filter(Category.id==id).first()
         if category is None:
             return jsonify({"msg": "Category not found"}), 404
         
-        courses = session.query(CourseCategory).filter_by(category_id=id).all()
+        courses = session.query(CourseCategory).filter_by(Category.category_id==id).all()
         return jsonify({"data": {"id": category.id, "name": category.name, "courses": [{"id": course.course_id, "name": course.course.name} for course in courses]}}), 200
     except Exception as e:
         return jsonify({"msg": "Internal Server Error", "error": str(e)}), 500

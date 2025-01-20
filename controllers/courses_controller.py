@@ -53,7 +53,7 @@ def get_all_courses():
 
         courses_json = [
             {
-                key: getattr(course, key) if key != "video_url" else minio_client.presigned_get_object(
+                key: getattr(course, key) if key not in ["video_url", "img_banner"]  else minio_client.presigned_get_object(
                     bucket_name,
                     getattr(course, key),
                     expires=timedelta(seconds=3600)
@@ -66,6 +66,7 @@ def get_all_courses():
                     "video_url",
                     "created_at",
                     "created_by",
+                    "img_banner"
                 ]
             }
             for course in courses
@@ -86,11 +87,12 @@ def get_all_courses():
                         "content_list",
                         "name",
                         "description",
-                        "video_url",
+                        "video_url"
                     ]
                 }
                 for content in contents
             ]
+
             course["contents"] = contents_json
 
             categories = session.query(CourseCategory).filter_by(course_id=course["id"]).all()
@@ -128,7 +130,7 @@ def get_courses_by_id(id):
             return {"message": "No courses found"}, 404
         
         course_json = {
-            key: getattr(course, key) if key != "video_url" else minio_client.presigned_get_object(
+            key: getattr(course, key) if key not in ["video_url", "img_banner"] else minio_client.presigned_get_object(
                     bucket_name,
                     getattr(course, key),
                     expires=timedelta(seconds=3600)
@@ -141,6 +143,7 @@ def get_courses_by_id(id):
                 "video_url",
                 "created_at",
                 "created_by",
+                "img_banner"
             ]
         }
 

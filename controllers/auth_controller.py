@@ -130,7 +130,7 @@ def me():
     session = Session()
     try:
         user_id = get_jwt_identity()
-        user = session.query(Users).filter(Users.user_id==user_id).first()
+        user = session.query(Users).filter(Users.id==user_id).first()
         if not user:
             return {
                 "message": "User not found"
@@ -139,14 +139,15 @@ def me():
             "users": {
                 "id": user.id,
                 "email": user.email,
-                "full_name": user.full_name
+                "full_name": user.full_name,
+                "is_subscribe": user.is_subscribe
             }
         }, 200
     except Exception as e:
         return {
             "msg": "error getting user",
             "error": str(e)
-        }
+        }, 500
 
 @auth_controller.route("/api/v1/refresh", methods=["POST"])
 @jwt_required(refresh=True)

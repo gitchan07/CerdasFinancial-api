@@ -2,6 +2,7 @@ from flask import Blueprint, request
 from config.database import connection
 from sqlalchemy.orm import sessionmaker
 from models.subscribe import Subscribe
+from models.subscribe_type import SubscribeType
 from models.users import Users
 from datetime import datetime, timezone
 import uuid
@@ -44,7 +45,7 @@ def register():
             }, 404
 
         user.is_subscribe = 1
-        user.subscribe_date = current_time
+        user.subscribe_time = current_time
 
         session.commit()
 
@@ -64,3 +65,58 @@ def register():
         }, 500
     finally:
         session.close()
+
+
+@subscribe_controller.route("/api/v1/subscribe/type", methods=["POST"])
+@jwt_required()
+def adding_subscribe_type():
+    try:
+        s = Session()
+        id = str(uuid.uuid4())
+        duration = request.form.get("duration")
+        price = request.form.get("price")
+
+        if not duration or not price:
+            return {
+                "message": "Input duration and price"
+            }, 400
+        
+        new_subscribe_type = SubscribeType(
+            id=id,
+            duration=duration,
+            price=price
+        )
+        s.add(new_subscribe_type)
+        s.commit()
+        return {
+            "message": "Subscribe type added successfully"
+        }, 201
+    except Exception as e:
+        return {
+            "message": f"An error occurred: {str(e)}"
+        }, 500
+    finally:
+        s.close()
+
+@subscribe_controller.route("/api/v1/subscribe/type", methods=["GET"])
+@jwt_required()
+def get_all_subscribe_type():
+    try:
+        s = Session()
+        subscribe_type = s.query(SubscribeType).order_by(SubscribeType.duration.asc()).all()
+        subscribe_type_list = [
+            {
+                "id": st.id,
+                "duration": st.duration,
+                "price": st.price
+            } for st in subscribe_type
+        ]
+        return {
+            "data": subscribe_type_list
+        }, 200
+    except Exception as e:
+        return {
+            "message": f"An error occurred: {str(e)}"
+        }, 500
+    finally:
+        s.close()

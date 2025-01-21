@@ -14,6 +14,7 @@ class Users(db.Model):
     full_name = Column(String(100), nullable=False)
     is_subscribe = Column(Integer, default=0)
     subscribe_time = Column(DateTime, default=None)
+    expired_time = Column(DateTime, default=None)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 

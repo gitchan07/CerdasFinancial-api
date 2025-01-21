@@ -18,7 +18,7 @@ EXPOSE 5000
 
 # Set environment variables
 ENV FLASK_APP=app.py
-ENV FLASK_RUN_HOST=0.0.0.0
 
-# Run the Flask application
-CMD ["pipenv", "run", "flask", "run"]
+# Run the Flask application with Gunicorn
+CMD ["gunicorn", "-b", "0.0.0.0:5000", "app:app"]
+

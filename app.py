@@ -20,6 +20,7 @@ from flask_cors import CORS
 from models.category import Category
 from models.content_course import ContentCourses
 from models.subscribe import Subscribe
+from models.subscribe_type import SubscribeType
 from models.courses_category import CourseCategory
 load_dotenv()
 

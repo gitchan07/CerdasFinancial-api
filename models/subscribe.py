@@ -10,5 +10,4 @@ class Subscribe(db.Model):
     user_id = Column(String(200), ForeignKey('users.id'), nullable=False)
     subscribe_date = Column(DateTime(timezone=True), server_default=func.now())
     subscribe_id = Column(String(36))
-    subscribes = relationship("SubscribeType", back_populates="history_subscribe")
 

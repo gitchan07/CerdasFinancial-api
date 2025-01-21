@@ -1,4 +1,4 @@
-from flask import Blueprint, request
+from flask import Blueprint, request, jsonify
 from config.database import connection
 from sqlalchemy.orm import sessionmaker
 from models.subscribe import Subscribe
@@ -10,6 +10,7 @@ from flask_jwt_extended import (
     jwt_required,
     get_jwt_identity
 )
+from service.subcription_transaction import create_midtrans_transaction
 
 
 subscribe_controller = Blueprint("subscribe_controller", __name__)
@@ -128,3 +129,24 @@ def get_all_subscribe_type():
         }, 500
     finally:
         s.close()
+
+@subscribe_controller.route("/api/v1/subscribe/midtrans", methods=["GET"])
+@jwt_required()
+def midtrans_payment():
+    try:
+        user_id = get_jwt_identity()
+
+        transaction_token = create_midtrans_transaction(user_id)
+
+        return jsonify({
+            "transaction_token": transaction_token
+        }), 200
+
+    except ValueError as e:
+        return jsonify({
+            "message": str(e)
+        }), 404
+    except Exception as e:
+        return jsonify({
+            "error": f"An error occurred: {str(e)}"
+        }), 500

@@ -20,9 +20,9 @@ def register():
     try: 
         current_user_id = get_jwt_identity()
         session = Session()
-        price = request.form.get("price")
+        subscribe_id = request.form.get("subscribe_id")
 
-        if not price:
+        if not subscribe_id:
             return {
                 "message": "Input price"
             }, 400
@@ -32,7 +32,7 @@ def register():
         new_subscribe = Subscribe(
             id=str(uuid.uuid4()),
             user_id=current_user_id,
-            price=price,
+            subscribe_id=subscribe_id,
             subscribe_date=current_time
         )
         session.add(new_subscribe)
@@ -66,7 +66,7 @@ def register():
     finally:
         session.close()
 
-
+# subcribe type 
 @subscribe_controller.route("/api/v1/subscribe/type", methods=["POST"])
 @jwt_required()
 def adding_subscribe_type():

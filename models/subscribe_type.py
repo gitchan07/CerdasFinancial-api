@@ -9,5 +9,4 @@ class SubscribeType(db.Model):
     duration = Column(Integer, nullable=False)
     price = Column(Integer, nullable=False)
 
-    history_subscribe = relationship("Subscribe", back_populates="subscribes")
 

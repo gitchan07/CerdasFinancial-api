@@ -4,7 +4,7 @@ from sqlalchemy.orm import sessionmaker
 from models.subscribe import Subscribe
 from models.subscribe_type import SubscribeType
 from models.users import Users
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 import uuid
 from flask_jwt_extended import (
     jwt_required,
@@ -26,8 +26,15 @@ def register():
             return {
                 "message": "Input price"
             }, 400
-
+        
+        check_subscribe = session.query(SubscribeType).filter(SubscribeType.id == subscribe_id).first()
+        if not check_subscribe:
+            return {
+                "message": "Subscribe type not found"
+            }, 404
+        duration_month = check_subscribe.duration
         current_time = datetime.now(timezone.utc)
+        expired_time = current_time + timedelta(days=duration_month * 30)
 
         new_subscribe = Subscribe(
             id=str(uuid.uuid4()),
@@ -46,6 +53,7 @@ def register():
 
         user.is_subscribe = 1
         user.subscribe_time = current_time
+        user.expired_time = expired_time
 
         session.commit()
 

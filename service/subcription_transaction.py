@@ -1,9 +1,11 @@
 import midtransclient
 from models.users import Users
-from models.subscribe import Subscribe, SubscribeType
+from models.subscribe import Subscribe 
+from models.subscribe_type import SubscribeType
 from config.database import connection
 from sqlalchemy.orm import sessionmaker
 from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask import Blueprint, jsonify
 import uuid
 
 Session = sessionmaker(bind=connection)
@@ -38,9 +40,7 @@ snap = midtransclient.Snap(
     server_key='SB-Mid-server-eZMbPuAmw3Clcc7YdO2s8SVu'
 )
 
-@jwt_required()
-def create_transaction():
-    user_id = get_jwt_identity()
+def create_midtrans_transaction(user_id):
     user = get_user_from_db(user_id)
     price = get_subscription_price(user_id)
 

@@ -1,5 +1,6 @@
 from models.base import Base
 from sqlalchemy import Column, String, Integer, DateTime, ForeignKey
+from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from db import db
 
@@ -8,4 +9,6 @@ class Subscribe(db.Model):
     id = Column(String(200), primary_key=True)
     user_id = Column(String(200), ForeignKey('users.id'), nullable=False)
     subscribe_date = Column(DateTime(timezone=True), server_default=func.now())
-    price =  Column(Integer)
+    subscribe_id = Column(String(36))
+    subscribes = relationship("SubscribeType", back_populates="history_subscribe")
+

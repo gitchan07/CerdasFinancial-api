@@ -2,6 +2,7 @@ from flask import Blueprint, request
 from config.database import connection
 from sqlalchemy.orm import sessionmaker
 from models.users import Users
+from datetime import datetime, timezone
 import bcrypt
 import uuid
 from utils.validators import Validators
@@ -23,6 +24,12 @@ def register():
         full_name = request.form["full_name"]
         password = request.form["password"]
         confirm_password = request.form["confirm_password"]
+        
+        check_email = session.query(Users).filter(Users.email == email).first()
+        if check_email:
+            return {
+                "message": "Email already exists",
+            }, 400
 
         if not Validators.is_valid(email):
             return {
@@ -38,8 +45,7 @@ def register():
             return {
                 "message": "password must min 8 length, have capital word and minimum 1 number"
             }, 400
-
-
+        
         if password != confirm_password:
             return {
                 "message": "Passwords do not match"
@@ -77,7 +83,7 @@ def login():
         password = request.form["password"]
 
         session = Session()
-        user = session.query(Users).filter(email==email).first()
+        user = session.query(Users).filter(Users.email==email).first()
 
         if not user:
             return {
@@ -121,16 +127,24 @@ def me():
     try:
         session = Session()
         user_id = get_jwt_identity()
-        user = session.query(Users).filter(user_id==user_id).first()
+        user = session.query(Users).filter(Users.id==user_id).first()
         if not user:
             return {
                 "message": "User not found"
-                }, 404
+                }, 
+    
+        if user.is_subscribe == 1 and user.subscribe_time is not None:
+            today = datetime.now(timezone.utc).astimezone(timezone.utc)
+            days = (user.subscribe_time.astimezone(timezone.utc) - today).days
+            
+        days_expires = days if user.is_subscribe == 1 else 0
         return {
             "users": {
                 "id": user.id,
                 "email": user.email,
-                "full_name": user.full_name
+                "full_name": user.full_name,
+                "is_susbscribe": "Yes" if user.is_subscribe == 1 else "No",
+                "day_before_expire": days_expires
             }
         }, 200
     except Exception as e:
@@ -154,7 +168,7 @@ def change_password():
     try:
         session = Session()
         user_id = get_jwt_identity()
-        user = session.query(Users).filter(user_id == user_id).first()
+        user = session.query(Users).filter(Users.id == user_id).first()
         if not user:
             return {
                 "message": "User not found"
@@ -166,7 +180,7 @@ def change_password():
         if not user.check_password(old_password):
             return {
                 "message": "Old password is incorrect"
-            }, 4001
+            }, 400
 
         user.set_password(new_password)
         session.commit()
@@ -178,7 +192,7 @@ def change_password():
         return {
             "msg": "error changing password",
             "error": str(e)
-        }
+        }, 500
     
 
 

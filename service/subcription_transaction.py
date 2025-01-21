@@ -1,5 +1,6 @@
 import midtransclient
 from models.users import Users
+from models.subscribe import Subscribe, SubscribeType
 from config.database import connection
 from sqlalchemy.orm import sessionmaker
 from flask_jwt_extended import jwt_required, get_jwt_identity
@@ -15,10 +16,17 @@ def get_user_from_db(user_id):
         session.close()
     return user
 
-def get_subcription_price(user_id):
+def get_subscription_price(user_id):
     session = Session()
     try:
-        subscription_price = session.query(Users).filter_by(id=user_id).first().subscription_price
+        subscription = session.query(Subscribe).join(SubscribeType).filter(Subscribe.user_id == user_id).first()
+        if subscription and subscription.subscribe_type:
+            subscription_price = subscription.subscribe_type.price
+        else:
+            raise ValueError("Subscription not found for user")
+    except Exception as e:
+        print(f"Error fetching subscription price: {e}")
+        subscription_price = None
     finally:
         session.close()
     return subscription_price
@@ -34,7 +42,7 @@ snap = midtransclient.Snap(
 def create_transaction():
     user_id = get_jwt_identity()
     user = get_user_from_db(user_id)
-    price = get_subcription_price(user_id)
+    price = get_subscription_price(user_id)
 
     if user and price is not None:
         param = {
@@ -49,10 +57,11 @@ def create_transaction():
         }
 
         try:
+            # Make the transaction request to Midtrans API
             transaction = snap.create_transaction(param)
             transaction_token = transaction['token']
             return {"transaction_token": transaction_token}, 200
         except Exception as e:
             return {"error": str(e)}, 500
     else:
-        return {"message": "User not found"}, 404
+        return {"message": "User not found or invalid subscription"}, 404

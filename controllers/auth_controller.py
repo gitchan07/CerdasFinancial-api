@@ -135,7 +135,7 @@ def me():
     
         if user.is_subscribe == 1 and user.subscribe_time is not None:
             today = datetime.now(timezone.utc).astimezone(timezone.utc)
-            days = (user.subscribe_time.astimezone(timezone.utc) - today).days
+            days = (user.expired_time.astimezone(timezone.utc) - today).days
             
         days_expires = days if user.is_subscribe == 1 else 0
         return {

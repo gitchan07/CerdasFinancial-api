@@ -130,13 +130,14 @@ def get_all_subscribe_type():
     finally:
         s.close()
 
-@subscribe_controller.route("/api/v1/subscribe/midtrans", methods=["GET"])
+@subscribe_controller.route("/api/v1/subscribe/midtrans", methods=["POST"])
 @jwt_required()
 def midtrans_payment():
     try:
         user_id = get_jwt_identity()
+        subscribe_id = request.form.get("subscribe_id")
 
-        transaction_token = create_midtrans_transaction(user_id)
+        transaction_token = create_midtrans_transaction(user_id, subscribe_id)
 
         return jsonify({
             "transaction_token": transaction_token

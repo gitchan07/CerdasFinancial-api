@@ -3,7 +3,6 @@ from config.database import connection
 from sqlalchemy.orm import sessionmaker
 from models.users import Users
 from datetime import datetime, timezone
-import bcrypt
 import uuid
 from utils.validators import Validators
 from flask_jwt_extended import (

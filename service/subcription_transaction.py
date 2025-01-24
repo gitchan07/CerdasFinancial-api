@@ -7,6 +7,7 @@ from sqlalchemy.orm import sessionmaker
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask import Blueprint, jsonify
 import uuid
+import os
 
 Session = sessionmaker(bind=connection)
 
@@ -18,14 +19,11 @@ def get_user_from_db(user_id):
         session.close()
     return user
 
-def get_subscription_price(user_id):
+def get_subscription_price(subcribe_id):
     session = Session()
     try:
-        subscription = session.query(Subscribe).join(SubscribeType).filter(Subscribe.user_id == user_id).first()
-        if subscription and subscription.subscribe_type:
-            subscription_price = subscription.subscribe_type.price
-        else:
-            raise ValueError("Subscription not found for user")
+        subscription = session.query(SubscribeType).filter(SubscribeType.id == subcribe_id).first()
+        return subscription.price
     except Exception as e:
         print(f"Error fetching subscription price: {e}")
         subscription_price = None
@@ -33,16 +31,14 @@ def get_subscription_price(user_id):
         session.close()
     return subscription_price
 
-# Create Snap API instance
 snap = midtransclient.Snap(
     is_production=False,
     client_key='SB-Mid-client-_yJX6mHyrKZMZ5cN', 
     server_key='SB-Mid-server-eZMbPuAmw3Clcc7YdO2s8SVu'
 )
-
-def create_midtrans_transaction(user_id):
+def create_midtrans_transaction(user_id,subcribe_id):
     user = get_user_from_db(user_id)
-    price = get_subscription_price(user_id)
+    price = get_subscription_price(subcribe_id)
 
     if user and price is not None:
         param = {
@@ -51,7 +47,7 @@ def create_midtrans_transaction(user_id):
                 "gross_amount": price,
             },
             "customer_details": {
-                "name": user.full_name,  
+                "name": user.full_name,
                 "email": user.email,
             }
         }
@@ -60,7 +56,9 @@ def create_midtrans_transaction(user_id):
             # Make the transaction request to Midtrans API
             transaction = snap.create_transaction(param)
             transaction_token = transaction['token']
-            return {"transaction_token": transaction_token}, 200
+            return {
+                "transaction_token": transaction_token,
+                "transaction_url": "https://app.sandbox.midtrans.com/snap/v4/redirection/"+transaction_token}, 200
         except Exception as e:
             return {"error": str(e)}, 500
     else:

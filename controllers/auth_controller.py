@@ -130,27 +130,40 @@ def me():
         if not user:
             return {
                 "message": "User not found"
-                }, 
+                },  404
     
         if user.is_subscribe == 1 and user.subscribe_time is not None:
-            today = datetime.now(timezone.utc).astimezone(timezone.utc)
-            days = (user.expired_time.astimezone(timezone.utc) - today).days
             
-        days_expires = days if user.is_subscribe == 1 else 0
-        return {
+            today = datetime.now(timezone.utc)
+            expired_time = user.expired_time
+
+            if expired_time.tzinfo is None or expired_time.tzinfo.utcoffset(expired_time) is None:
+                expired_time = expired_time.replace(tzinfo=timezone.utc)
+            days = (expired_time - today).days
+            days_expires = days if user.is_subscribe == 1 else 0
+            return {
+                "users": {
+                    "id": user.id,
+                    "email": user.email,
+                    "full_name": user.full_name,
+                    "is_susbscribe": "Yes" if user.is_subscribe == 1 else "No",
+                    "day_before_expire": days_expires
+                }
+            }, 200
+        else:
+            return {
             "users": {
-                "id": user.id,
+                "id": user.id, 
                 "email": user.email,
                 "full_name": user.full_name,
-                "is_susbscribe": "Yes" if user.is_subscribe == 1 else "No",
-                "day_before_expire": days_expires
+                "is_susbscribe": "No"
             }
         }, 200
     except Exception as e:
         return {
             "msg": "error getting user",
             "error": str(e)
-        }
+        }, 500
 
 @auth_controller.route("/api/v1/refresh", methods=["POST"])
 @jwt_required(refresh=True)

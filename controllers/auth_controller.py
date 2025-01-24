@@ -133,8 +133,13 @@ def me():
                 },  404
     
         if user.is_subscribe == 1 and user.subscribe_time is not None:
+            
             today = datetime.now(timezone.utc)
-            days = (user.expired_time - today).days
+            expired_time = user.expired_time
+
+            if expired_time.tzinfo is None or expired_time.tzinfo.utcoffset(expired_time) is None:
+                expired_time = expired_time.replace(tzinfo=timezone.utc)
+            days = (expired_time - today).days
             days_expires = days if user.is_subscribe == 1 else 0
             return {
                 "users": {
@@ -158,7 +163,7 @@ def me():
         return {
             "msg": "error getting user",
             "error": str(e)
-        }
+        }, 500
 
 @auth_controller.route("/api/v1/refresh", methods=["POST"])
 @jwt_required(refresh=True)

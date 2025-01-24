@@ -1,24 +1,26 @@
-# Use the official Python 3.11 image as a base
+# Use the official Python image from the Docker Hub
 FROM python:3.11-slim
 
-# Set the working directory inside the container
+# Set the working directory in the container
 WORKDIR /app
 
-# Copy the Pipfile and Pipfile.lock to the working directory
+# Install pipenv
+RUN pip install --no-cache-dir pipenv
+
+# Copy Pipfile and Pipfile.lock to the working directory
 COPY Pipfile Pipfile.lock ./
 
-# Install pipenv and project dependencies
-RUN pip install pipenv && pipenv install --deploy --ignore-pipfile
+# Install dependencies using pipenv
+RUN pipenv install --deploy --ignore-pipfile
 
-# Copy the entire project to the working directory
+# Copy the rest of the application code into the container
 COPY . .
 
-# Expose the port the app runs on
-EXPOSE 5000
+# Expose port 8000 to the outside world
+EXPOSE 8000
 
-# Set environment variables
-ENV FLASK_APP=app.py
+# Define environment variables (optional)
+ENV NODE_ENV=production
 
-# Run the Flask application with Gunicorn
-CMD ["gunicorn", "-b", "0.0.0.0:5000", "app:app"]
-
+# Run Gunicorn using pipenv's virtual environment
+CMD ["pipenv", "run", "gunicorn", "--bind", "0.0.0.0:8000", "app:app"]

@@ -33,8 +33,8 @@ def get_subscription_price(subcribe_id):
 
 snap = midtransclient.Snap(
     is_production=False,
-    client_key='SB-Mid-client-_yJX6mHyrKZMZ5cN', 
-    server_key='SB-Mid-server-eZMbPuAmw3Clcc7YdO2s8SVu'
+    client_key=os.getenv("MIDTRANS_CLIENT_KEY"), 
+    server_key=os.getenv("MIDTRANS_SERVER_KEY")
 )
 def create_midtrans_transaction(user_id,subcribe_id):
     user = get_user_from_db(user_id)
